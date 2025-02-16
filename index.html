@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+    <head>
+        <title>nix-bitcoin // Web Flasher</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="style.css">
+        <link rel="shortcut icon" href="favicon.ico">
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background: #1e1e1e;
+                color: white;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 20px;
+                background: #333;
+            }
+
+            .logo img {
+                height: 40px;
+            }
+
+            button {
+                background: #0080ff;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                padding: 6px 12px;
+                cursor: pointer;
+                transition: 0.3s;
+            }
+
+            button:hover {
+                background: #005bb5;
+            }
+
+            button:disabled {
+                background: #555;
+            }
+
+            main {
+                padding: 20px;
+                text-align: center;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            table, th, td {
+                border: 1px solid #444;
+            }
+
+            th, td {
+                padding: 10px;
+                text-align: left;
+            }
+
+            footer {
+                text-align: center;
+                padding: 10px;
+                background: #333;
+                margin-top: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <a class="logo" href="https://nix-bitcoin.org">
+                <img src="logo.svg" alt="nix-bitcoin logo">
+            </a>
+            <div>Web Flasher</div>
+        </header>
+        <main>
+            <h1>nix-bitcoin Web Flasher</h1>
+            <p>Use WebUSB to flash a nix-bitcoin image to your device.</p>
+            <h2>Connected devices</h2>
+            <p>Put your device in fastboot mode and use "Give access" to allow flashing.</p>
+            <button id="request-device">Give access</button>
+            <table id="devices"></table>
+            <h3>Supported devices</h3>
+            <table id="supporteddevices">
+                <tr>
+                    <th>Name</th>
+                    <th>Codename</th>
+                </tr>
+            </table>
+        </main>
+        <footer>
+            <div>&copy; 2025 nix-bitcoin contributors</div>
+        </footer>
+    </body>
+    <script src="flasher.js"></script>
+</html>
