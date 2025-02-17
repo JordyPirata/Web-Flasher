@@ -7,19 +7,19 @@
     <link href="./output.css" rel="stylesheet">
     <link rel="shortcut icon" href="favicon.ico">
 </head>
-<body class="bg-gray-950 text-gray-200 min-h-screen flex flex-col">
-    <header class="bg-gray-900 p-6 flex justify-between items-center shadow-md">
+<body class="bg-[#111] text-gray-200 min-h-screen flex flex-col">
+    <header class="bg-[#1d1d1d] p-6 flex justify-between items-center shadow-md">
         <a href="https://btcgdl.com/" class="flex items-center">
-            <img src="images/Bitcoin_lightning.png" alt="Nix-Bitcoin logo" class="h-10 mr-2">
+            <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="Nix-Bitcoin logo" class="h-10 mr-2">
             <span class="text-lg font-semibold">Nix-Bitcoin</span>
         </a>
         <h1 class="text-xl font-semibold">Web Flasher</h1>
     </header>
     
-    <main class="flex-grow flex flex-col items-center justify-center p-6">
+    <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
         <p class="mb-6 text-lg text-gray-400">Use WebUSB to flash a Nix-Bitcoin image to your device.</p>
         
-        <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md">
+        <div class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full">
             <h2 class="text-2xl mb-4 text-gray-300">Connected Devices</h2>
             <p class="mb-4 text-gray-400">Put your device in fastboot mode and use "Give access" to allow flashing.</p>
             <button id="request-device" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded transition">Give Access</button>
@@ -27,7 +27,7 @@
             <table id="devices" class="w-full border-collapse border border-gray-800 mt-4"></table>
         </div>
         
-        <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-md mt-6">
+        <div class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full mt-6">
             <h3 class="text-xl mb-4 text-gray-300">Supported Devices</h3>
             <table id="supporteddevices" class="w-full border-collapse border border-gray-800">
                 <tr class="bg-gray-800">
@@ -38,7 +38,7 @@
         </div>
     </main>
     
-    <footer class="bg-gray-900 p-4 text-center text-gray-500 text-sm shadow-md">
+    <footer class="bg-[#1d1d1d] p-4 text-center text-gray-500 text-sm shadow-md">
         &copy; 2025 Nix-Bitcoin Contributors
     </footer>
     
