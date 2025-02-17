@@ -11,6 +11,7 @@ Web-Flasher is a web application that uses WebUSB to flash a Nix-Bitcoin image t
 
 ## Development
 To set up the development environment, follow these steps:
+
 1 Clone the repository.
 
 ``` .sh
