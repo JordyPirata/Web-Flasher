@@ -4,7 +4,7 @@
     <title>Nix-Bitcoin // Web Flasher</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="./output.css" rel="stylesheet">
+    <link href="./css/output.css" rel="stylesheet">
     <link rel="shortcut icon" href="favicon.ico">
 </head>
 <body class="bg-[#111] text-gray-200 min-h-screen flex flex-col">
@@ -17,9 +17,21 @@
     </header>
     
     <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
+
+        <div id="notsupported" class="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-red-900 to-gray-900 text-white p-8 rounded-2xl">
+            <div class="bg-[#1d1d1d] p-10 rounded-2xl shadow-xl max-w-3xl text-center">
+                <h1 class="text-5xl font-bold mb-6 text-red-300">Unsupported Browser</h1>
+                <p class="text-2xl text-gray-300">
+                    Your browser does not 
+                    <a href="https://caniuse.com/webusb" class="text-orange-400 underline hover:text-orange-300 transition">support WebUSB</a>, 
+                    which is required for the web flasher to function.
+                </p>
+            </div>
+        </div>
+
         <p class="mb-6 text-lg text-gray-400">Use WebUSB to flash a Nix-Bitcoin image to your device.</p>
         
-        <div class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full">
+        <div id="ConnectedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full">
             <h2 class="text-2xl mb-4 text-gray-300">Connected Devices</h2>
             <p class="mb-4 text-gray-400">Put your device in fastboot mode and use "Give access" to allow flashing.</p>
             <button id="request-device" class="bg-[#fd961a] hover:bg-[#e3921a] text-white font-semibold py-2 px-6 rounded transition">Give Access</button>
@@ -27,7 +39,7 @@
             <table id="devices" class="w-full border-collapse border border-gray-800 mt-4"></table>
         </div>
         
-        <div class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full mt-6">
+        <div id="SupportedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full mt-6">
             <h3 class="text-xl mb-4 text-gray-300">Supported Devices</h3>
             <table id="supporteddevices" class="w-full border-collapse border border-gray-800">
                 <tr class="bg-[#D8821A]">
@@ -42,6 +54,6 @@
         &copy; 2025 Nix-Bitcoin Contributors
     </footer>
     
-    <script src="flasher.js"></script>
+    <script src="js/flasher.js"></script>
 </body>
 </html>
