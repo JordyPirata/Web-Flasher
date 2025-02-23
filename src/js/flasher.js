@@ -31,6 +31,20 @@ async function onConnectDevice(device) {
 
 }
 
+function onConnect(event) {
+  onConnectDevice(event.device);
+}
+
+function onDisonnect(event) {
+  const device = event.device;
+  const rows = document.querySelectorAll('#devices tr[data-serial=' + device.serialNumber + ']');
+  const table = document.getElementById('devices');
+  for (let i = 0; i < rows.length; i++) {
+    table.removeChild(rows[i]);
+  }
+  console.log('disconnect', event);
+}
+
 document.addEventListener("DOMContentLoaded", async function() {
 
   if (navigator.usb === undefined) {
@@ -55,6 +69,9 @@ document.addEventListener("DOMContentLoaded", async function() {
   for (let i = 0; i < devices.length; i++) {
     onConnectDevice(devices[i]);
   }
+
+  navigator.usb.addEventListener('connect', onConnect);
+  navigator.usb.addEventListener('disconnect', onDisonnect);
   
   const requestDeviceButton = document.getElementById('request-device');
   requestDeviceButton.addEventListener('click', async function(event) {
@@ -63,9 +80,9 @@ document.addEventListener("DOMContentLoaded", async function() {
     try {
       device = await navigator.usb.requestDevice({
         filters: [{
-          classCode: 0xFF,
-          subclassCode: 0x42,
-          protocolCode: 0x03,
+          classCode: 0xFF, // FASTBOOT USB CLASS
+          subclassCode: 0x42, // FASTBOOT USB SUBCLASS
+          protocolCode: 0x03, // FASTBOOT USB PROTOCOL
         }, ],
       });
     } catch (err) {
