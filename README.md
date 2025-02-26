@@ -23,5 +23,5 @@ npm install
 ```
 3 Run the tailwind script
 ``` .sh
-npm run dev
+npm run css
 ```
