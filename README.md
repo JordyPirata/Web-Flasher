@@ -21,7 +21,7 @@ git clone git@github.com:JordyPirata/Web-Flasher.git
 ``` .sh
 npm install
 ```
-3 Run the tailwind script
+3 Run dev scripts
 ``` .sh
-npm run css
+npm run dev
 ```
