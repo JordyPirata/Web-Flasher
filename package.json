@@ -9,9 +9,9 @@
     "dev:js": "npm run js -- --watch",
     "dev:serve": "npm run serve",
     "dev": "npm-run-all --parallel dev:*",
-    "css": "npx @tailwindcss/cli -i ./public/css/input.css -o ./public/css/styles.css",
+    "css": "npx @tailwindcss/cli -i ./dist/input.css -o ./dist/styles.css",
     "js": "webpack --config webpack.config.js",
-    "serve": "npx live-server public --wait=1000 --port=8081"
+    "serve": "npx live-server dist --wait=1000 --port=8081"
   },
   "repository": {
     "type": "git",
