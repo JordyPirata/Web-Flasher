@@ -1,3 +1,4 @@
+import * as fastboot from 'android-fastboot';
 
 const deviceinfo = [{
     'name': 'oneplus-enchilada',
@@ -26,28 +27,47 @@ const deviceinfo = [{
     ]
   }
 ];
+// Crear una instancia de FastbootDevice
+let device = new fastboot.FastbootDevice();
+window.device = device;
 
-async function onConnectDevice(device) {
+// Enable verbose debug logging
+fastboot.setDebugLevel(2);
 
+async function ConnectDevice() {
+    let statusField = document.getElementById("devices");
+    statusField.textContent = "Connecting to device...";
+
+    try {
+        await device.connect();
+    } catch (error) {
+        statusField.textContent = `Failed to connect to device: ${error.message}`;
+        return;
+    }
+
+    let product = await device.getVariable("product");
+    let result;
+    for (let index = 0; index < deviceinfo.length; index++) {
+        const di = deviceinfo[index];
+        if (di['filter']['product'] === product) {
+            result = di['nicename'];
+            break
+        }
+        else
+        {
+            result = "Unknown device";
+        }
+    }
+
+    let status = `Connected to ${result}`;
+    statusField.textContent = status;
 }
 
-function onConnect(event) {
-  onConnectDevice(event.device);
-}
 
-function onDisonnect(event) {
-  const device = event.device;
-  const rows = document.querySelectorAll('#devices tr[data-serial=' + device.serialNumber + ']');
-  const table = document.getElementById('devices');
-  for (let i = 0; i < rows.length; i++) {
-    table.removeChild(rows[i]);
-  }
-  console.log('disconnect', event);
-}
 
 document.addEventListener("DOMContentLoaded", async function() {
 
-  if (navigator.usb === undefined) {
+if (navigator.usb === undefined) {
 
     const connectedDiv = document.getElementById('ConnectedDev');
     const SupportedDiv = document.getElementById('SupportedDev');
@@ -58,41 +78,16 @@ document.addEventListener("DOMContentLoaded", async function() {
     connectedDiv.style.display = 'none';
     console.error("No webusb support");
     return;
-  }
-  else {
+}
+else 
+{
     const div = document.getElementById('notsupported');
-
     div.style.display = 'none';
-  }
-  
-  let devices = await navigator.usb.getDevices();
-  for (let i = 0; i < devices.length; i++) {
-    onConnectDevice(devices[i]);
-  }
+}
 
-  navigator.usb.addEventListener('connect', onConnect);
-  navigator.usb.addEventListener('disconnect', onDisonnect);
-  
+  // Add event listener to connect button
   const requestDeviceButton = document.getElementById('request-device');
-  requestDeviceButton.addEventListener('click', async function(event) {
-    event.preventDefault();
-    let device;
-    try {
-      device = await navigator.usb.requestDevice({
-        filters: [{
-          classCode: 0xFF, // FASTBOOT USB CLASS
-          subclassCode: 0x42, // FASTBOOT USB SUBCLASS
-          protocolCode: 0x03, // FASTBOOT USB PROTOCOL
-        }, ],
-      });
-    } catch (err) {
-      // No device selected
-      console.error(err);
-    }
-    if (device !== undefined) {
-      onConnectDevice(device);
-    }
-  });
+  requestDeviceButton.addEventListener('click', ConnectDevice);
 
   const suppTable = document.getElementById('supporteddevices');
   for (let i = 0; i < deviceinfo.length; i++) {
