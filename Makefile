@@ -1,9 +1,16 @@
 build: css js
 
-css: dist/css/output.css
-dist/css/output.css:
+watch:
+	@make serve & make dev
+serve:
+	@npx live-server public --wait=1000 --port=8081
+dev:
+	@npm run dev
+	
+css: public/styles.css
+public/styles.css:
 	@npm run css
 
-js: dist/main.js
-dist/main.js:
+js: public/main.js
+public/main.js:
 	@npm run js
