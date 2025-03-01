@@ -12,16 +12,20 @@ Web-Flasher is a web application that uses WebUSB to flash a Nix-Bitcoin image t
 ## Development
 To set up the development environment, follow these steps:
 
-1 Clone the repository.
+1. Clone the repository.
 
-``` .sh
-git clone git@github.com:JordyPirata/Web-Flasher.git
-```
-2 Install the necessary dependencies.
-``` .sh
-npm install
-```
-3 Run dev scripts
-``` .sh
-npm run dev
-```
+    ``` .sh
+    git clone git@github.com:JordyPirata/Web-Flasher.git
+    ```
+2. Install the necessary dependencies.
+    ``` .sh
+    npm install
+    ```
+3. Ensure install the [fastboot nix-package](https://github.com/JordyPirata/fastboot.js/tree/FIX-MAX-DOWNLOAD-SIZE)
+
+    **Note:** Please check the link above for more details.
+
+4. Run dev scripts
+    ``` .sh
+    npm run dev
+    ```
