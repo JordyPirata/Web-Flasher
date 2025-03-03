@@ -8,18 +8,14 @@ const deviceinfo = [{
       'product': 'sdm845'
     },
     'script': [{
-        "flash": "159.223.192.247:8080/system.img.xz",
+        "flash": "http://localhost/system.img.xz",
         partition: 'userdata',
         name: "Flash rootfs"
       },
       {
-        "flash": "159.223.192.247:8080/boot.img.xz",
+        "flash": "http://localhost/boot.img.xz",
         partition: 'boot',
-        name: "Flash boot partition"
-      },
-      {
-        "cmd": "erase:dtbo_a",
-        name: "Erase DTBO partition"
+        name: "Flash boot"
       },
       {
         "cmd": "erase:dtbo_b",
@@ -33,14 +29,14 @@ const deviceinfo = [{
   }
 ];
 
-// Fetch the compressed file
-const compressedResponse = await fetch('somefile.xz');
 
-const decompressedResponse = new Response(
-   new XzReadableStream(compressedResponse.body)
-);
+async function fetchImage() {
+  const response = await fetch('http://localhost/system.img.xz');
+  // let blob = await response.blob();
+  // console.log("Blob size:", blob.size, "Type:", blob.type);
+  return response;
+}
 
-const text = await decompressedResponse.text();
 // Create a new FastbootDevice instance
 let device = new fastboot.FastbootDevice();
 window.device = device;
@@ -48,35 +44,68 @@ window.device = device;
 // Enable verbose debug logging
 fastboot.setDebugLevel(2);
 
+// Create the table
+const table = document.getElementById("devices");
+
+const row = document.createElement('TR');
+
+const td_product = document.createElement('TD');
+const td_start = document.createElement('TD');
+
+row.appendChild(td_product);
+row.appendChild(td_start);
+table.appendChild(row);
+
 async function ConnectDevice() {
-  let statusField = document.getElementById("devices");
-  statusField.textContent = "Connecting to device...";
+  let is_connected = true;
+  
+  // center the text vertically
+
+  td_product.classList.add('text-left');
+  td_product.textContent = "Connecting to device...";
 
   try {
     await device.connect();
   } catch (error) {
-    statusField.textContent = `Failed to connect to device: ${error.message}`;
-    return;
+    td_product.textContent = `Failed to connect to device: ${error.message}`;
+    is_connected =  false;
   }
 
+  // Check if the device is connected
+  if (!is_connected) return;
+
+  // Get the product name
   let product = await device.getVariable("product");
+  
   let result;
+
   for (let index = 0; index < deviceinfo.length; index++) {
     const di = deviceinfo[index];
     if (di['filter']['product'] === product) {
       result = di['nicename'];
       break
     }
-    else
-    {
-      result = "Unknown device";
-    }
   }
-
   let status = `Connected to ${result}`;
-  statusField.textContent = status;
-}
+  td_product.textContent = status;
 
+  // Check if the button is already added
+  if (td_start.children.length > 0) return;
+
+  // Add button to start flashing
+  const startButton = document.createElement('BUTTON');
+  startButton.textContent = 'Start flashing';
+  // add classes to tailwindcss and move to right
+  startButton.classList.add('bg-[#fd961a]', 'hover:bg-[#a06713]', 'text-white', 'font-semibold', 'py-2', 'px-4', 'rounded', 'transition','ml-auto');
+  startButton.addEventListener('click', StartFlashing);
+  td_start.classList.add('flex', 'items-center', 'justify-center');
+  td_start.appendChild(startButton);
+  
+}
+async function StartFlashing() {
+  console.log("Starting flashing");
+
+}
 async function sendFormCommand(event) {
   event.preventDefault();
 
@@ -120,7 +149,11 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   // Add event listener to connect button
   const requestDeviceButton = document.getElementById('request-device');
-  requestDeviceButton.addEventListener('click', ConnectDevice);
+  let connectResult = requestDeviceButton.addEventListener('click', ConnectDevice);
+
+  if (connectResult) {
+    
+  }
 
   const suppTable = document.getElementById('supporteddevices');
   for (let i = 0; i < deviceinfo.length; i++) {
@@ -136,4 +169,4 @@ document.addEventListener("DOMContentLoaded", async function() {
     row.appendChild(td_codename);
     suppTable.appendChild(row);
   }
-}); 
+});
