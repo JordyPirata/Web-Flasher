@@ -9,15 +9,15 @@ const deviceinfo = [{
     },
     'script': [{
         type: "flash",
-        url: "http://localhost/system.img.xz",
-        partition: "userdata",
-        name: "Flash rootfs"
+        url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/boot.img.xz",
+        partition: 'boot',
+        name: "Flash boot"
       },
       {
         type: "flash",
-        url: "http://localhost/boot.img.xz",
-        partition: 'boot',
-        name: "Flash boot"
+        url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz",
+        partition: "userdata",
+        name: "Flash rootfs"
       },
       {
         type: "cmd",
