@@ -4,34 +4,31 @@ const deviceinfo = [{
     'filter': {
       'product': 'sdm845'
     },
-    'script': [{
+    'script': [
+      {
         type: "flash",
-        size: 734292888,
+        // size: 2897200992,
+        size: 734292888, //postmarketOS oneplus-enchilada.img.xz
         // url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/boot.img.xz",
         url: "https://images.postmarketos.org/bpo/v24.12/oneplus-enchilada/gnome-mobile/20250219-1310/20250219-1310-postmarketOS-v24.12-gnome-mobile-3-oneplus-enchilada.img.xz",
-        // url: "https://images.postmarketos.org/bpo/edge/oneplus-enchilada/gnome-mobile/20250214-0841/20250214-0841-postmarketOS-edge-gnome-mobile-3-oneplus-enchilada.img.xz",
         partition: "userdata",
         name: "Flash rootfs"
       },
       {
         type: "flash",
-        size: 23749736,
+        // size: 31595068,
+        size: 23749736, // postmarketOS oneplus-enchilada-boot.img.xz
         // url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz",
         url: "https://images.postmarketos.org/bpo/v24.12/oneplus-enchilada/gnome-mobile/20250219-1310/20250219-1310-postmarketOS-v24.12-gnome-mobile-3-oneplus-enchilada-boot.img.xz",
         partition: 'boot',
         name: "Flash boot"
-      },
+      }, 
       {
         type: "cmd",
         command: "erase:dtbo",
         name: "Erase DTBO partition"
       },
       /*
-      {
-        type: "cmd",
-        command: "erase:dtbo_a",
-        name: "Erase DTBO partition"
-      },
       {
         type: "cmd",
         command: "erase:dtbo_b",
@@ -46,6 +43,19 @@ const deviceinfo = [{
   }
 ];
 
+// Create the table
+const table = document.getElementById("devices");
+
+const row = document.createElement('TR');
+
+const td_product = document.createElement('TD');
+const td_start = document.createElement('TD');
+
+row.appendChild(td_product);
+row.appendChild(td_start);
+table.appendChild(row);
+
+// Helper functions
 function readableFileSize(size) {
   var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
   var i = 0;
@@ -165,24 +175,36 @@ async function fastbootFlash(device, partition, reader, rawsize, progress) {
 }
 async function StartFlashing(device) {
   console.log("Start flashing");
-  td_product.textContent = "Starting flashing";
+  td_product.textContent = "Start flashing";
   await RunScript(device, deviceinfo[0]['script']);
 }
 async function RunScript(device, script) {
 
+  let progressBar = document.createElement('PROGRESS');
+  progressBar.value = 0;
+  
+  
   for (let i = 0; i < script.length; i++) {
     const step = script[i];
 
     switch (step.type) {
       case 'flash':
-        
+        td_product.textContent = `Downloading...  ${step.partition}  `;
+        // td_product.appendChild(progressBar);
         const xzResponse = await fetch(step.url);
+        let received = 0;
         const res = new Response(new ReadableStream({
           async start(controller) {
             const streamReader = xzResponse.body.getReader(); // Renamed to avoid conflict
             for (; ;) {
               const { done, value } = await streamReader.read();
               if (done) break;
+              received += value.byteLength;/*
+              progressBar.value = received;
+              if (progressBar.value === progressBar.max) {
+                progressBar.style.color = '#f00';
+                progressBar.style.color = '#090';
+              }*/
               controller.enqueue(value);
             }
             controller.close();
@@ -192,7 +214,7 @@ async function RunScript(device, script) {
         const reader = new xzwasm.XzReadableStream(res.body);
         await fastbootFlash(device, step.partition, reader, step.size, function (progress) 
         {
-          console.log('Progress:', progress);
+          td_product.textContent = `Flashing...  ${step.partition}`;
         });
         break;
       case 'cmd':
@@ -202,18 +224,6 @@ async function RunScript(device, script) {
     }
   }
 };
-
-// Create the table
-const table = document.getElementById("devices");
-
-const row = document.createElement('TR');
-
-const td_product = document.createElement('TD');
-const td_start = document.createElement('TD');
-
-row.appendChild(td_product);
-row.appendChild(td_start);
-table.appendChild(row);
 
 async function OnConnectDevice(device) {
   console.log('connect', device);
