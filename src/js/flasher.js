@@ -1,6 +1,3 @@
-import * as fastboot from 'android-fastboot';
-import { XzReadableStream } from 'xzwasm';
-
 const deviceinfo = [{
     'name': 'oneplus-enchilada',
     'nicename': 'OnePlus 6',
@@ -9,16 +6,27 @@ const deviceinfo = [{
     },
     'script': [{
         type: "flash",
-        url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/boot.img.xz",
+        size: 734292888,
+        // url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/boot.img.xz",
+        url: "https://images.postmarketos.org/bpo/v24.12/oneplus-enchilada/gnome-mobile/20250219-1310/20250219-1310-postmarketOS-v24.12-gnome-mobile-3-oneplus-enchilada.img.xz",
+        // url: "https://images.postmarketos.org/bpo/edge/oneplus-enchilada/gnome-mobile/20250214-0841/20250214-0841-postmarketOS-edge-gnome-mobile-3-oneplus-enchilada.img.xz",
+        partition: "userdata",
+        name: "Flash rootfs"
+      },
+      {
+        type: "flash",
+        size: 23749736,
+        // url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz",
+        url: "https://images.postmarketos.org/bpo/v24.12/oneplus-enchilada/gnome-mobile/20250219-1310/20250219-1310-postmarketOS-v24.12-gnome-mobile-3-oneplus-enchilada-boot.img.xz",
         partition: 'boot',
         name: "Flash boot"
       },
       {
-        type: "flash",
-        url: "https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz",
-        partition: "userdata",
-        name: "Flash rootfs"
+        type: "cmd",
+        command: "erase:dtbo",
+        name: "Erase DTBO partition"
       },
+      /*
       {
         type: "cmd",
         command: "erase:dtbo_a",
@@ -28,7 +36,7 @@ const deviceinfo = [{
         type: "cmd",
         command: "erase:dtbo_b",
         name: "Erase DTBO partition"
-      },
+      },*/
       {
         type: "cmd",
         command: "reboot",
@@ -38,34 +46,157 @@ const deviceinfo = [{
   }
 ];
 
-// Create a new FastbootDevice instance
-let device = new fastboot.FastbootDevice();
-window.device = device;
+function readableFileSize(size) {
+  var units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+  var i = 0;
+  while (size >= 1024) {
+      size /= 1024;
+      ++i;
+  }
+  return size.toFixed(1) + ' ' + units[i];
+}
 
-// Enable verbose debug logging
-fastboot.setDebugLevel(2);
+async function fastbootCheckResponse(device) {
+  const resultPacket = await device.transferIn(1, 64);
+  const result = new TextDecoder().decode(resultPacket.data);
 
-async function RunScript(script) {
+  const statusCode = result.substring(0, 4);
+  const data = result.substring(4);
+  console.debug('IN', statusCode, data);
+  if (statusCode === 'INFO') {
+      console.info(data);
+      return await fastbootCheckResponse(device);
+  }
+  return [statusCode, data];
+}
+
+async function fastbootCommand(device, command) {
+  if (device === null) {
+      console.error("Cannot run fastboot command without connected device");
+      return;
+  }
+  console.debug('OUT', command);
+  const packet = new TextEncoder().encode(command);
+  await device.transferOut(1, packet);
+  return await fastbootCheckResponse(device);
+}
+
+async function fastbootGetvar(device, name) {
+  const res = await fastbootCommand(device, "getvar:" + name);
+  if (res[0] !== "OKAY") {
+      console.error(res[1]);
+      return undefined;
+  }
+  return res[1];
+}
+
+async function fastbootRaw(device, data, progress) {
+  const size = data.byteLength;
+  const chunksize = 16384;
+  let i = 0;
+  let left = size;
+  while (left > 0) {
+      const chunk = data.slice(i * chunksize, (i + 1) * chunksize);
+      await device.transferOut(1, chunk);
+      left -= chunk.byteLength;
+      i += 1;
+      if (i % 8 === 0) {
+          progress(1 - (left / size));
+      }
+  }
+  progress(1.0);
+}
+
+async function fastbootDownload(device, partition, split, progress) {
+  const size = split.data.byteLength;
+  const sizeHex = size.toString(16).padStart(8, "0");
+
+  let res = await fastbootCommand(device, 'download:' + sizeHex);
+  if (res[0] !== 'DATA') {
+      console.error('Failed download command', res[1]);
+  }
+  await fastbootRaw(device, split.data, progress);
+  return await fastbootCheckResponse(device);
+}
+
+async function fastbootFlash(device, partition, reader, rawsize, progress) {
+  const MB = 1024 * 1024;
+  let size = rawsize;
+  const response = new Response(reader);
+
+  // Add a slot suffix if needed
+  let has_slot = await fastbootGetvar(device, 'has-slot:' + partition) === "yes";
+  if (has_slot) {
+      let slot = await fastbootGetvar(device, 'current-slot');
+      partition += '_' + slot;
+  }
+
+  // Determine max-download-size
+  let max_download_size = await fastbootGetvar(device, 'max-download-size');
+  if (max_download_size !== undefined) {
+      if (!isNaN(max_download_size) && !isNaN(parseFloat(max_download_size))) {
+          max_download_size = parseInt(max_download_size, 10);
+      } else {
+          max_download_size = parseInt(max_download_size, 16);
+      }
+  } else {
+      max_download_size = 512 * MB;
+  }
+  console.log('max-download-size', readableFileSize(max_download_size));
+  const blob = await response.blob();
+
+  // Deal with logical partitions
+  const is_logical = await fastbootGetvar(device, 'is-logical:' + partition) === 'yes';
+  if (is_logical) {
+      fastbootCommand(device, 'resize-logical-partition:' + partition + ':0');
+      fastbootCommand(device, 'resize-logical-partition:' + partition + ':' + size);
+  }
+  let splits = 0;
+  let sent = 0;
+  for await(let split of sparse.splitBlob(blob, Math.max(300 * MB, max_download_size * 0.8))) {
+      await fastbootDownload(device, partition, split, function (fraction) {
+          // Convert chunk progress to overall progress
+          progress((sent + fraction * split.bytes) / size);
+      });
+      await fastbootCommand(device, 'flash:' + partition);
+      splits += 1;
+      sent += split.bytes;
+  }
+}
+async function StartFlashing(device) {
+  console.log("Start flashing");
+  td_product.textContent = "Starting flashing";
+  await RunScript(device, deviceinfo[0]['script']);
+}
+async function RunScript(device, script) {
 
   for (let i = 0; i < script.length; i++) {
     const step = script[i];
 
     switch (step.type) {
       case 'flash':
-        try {
-          const compressedResponse = await fetch(step.url);
-          const decompressedResponse = new Response(
-            new XzReadableStream(compressedResponse.body)
-          );
-          await device.flashBlob(step.partition, await decompressedResponse.blob());
-        }
-        catch (error) {
-          console.error(`Failed to fetch ${step.url}: ${error.message}`);
-        }
-        break;
+        
+        const xzResponse = await fetch(step.url);
+        const res = new Response(new ReadableStream({
+          async start(controller) {
+            const streamReader = xzResponse.body.getReader(); // Renamed to avoid conflict
+            for (; ;) {
+              const { done, value } = await streamReader.read();
+              if (done) break;
+              controller.enqueue(value);
+            }
+            controller.close();
+          }
+        }));
 
+        const reader = new xzwasm.XzReadableStream(res.body);
+        await fastbootFlash(device, step.partition, reader, step.size, function (progress) 
+        {
+          console.log('Progress:', progress);
+        });
+        break;
       case 'cmd':
-        let result = (await device.runCommand(step.command)).text;
+        let result = (await fastbootCommand(device,step.command)).text;
         console.log(result);
         break;
     }
@@ -84,27 +215,44 @@ row.appendChild(td_product);
 row.appendChild(td_start);
 table.appendChild(row);
 
-async function ConnectDevice() {
-  let is_connected = true;
-  
-  // center the text vertically
-
-  td_product.classList.add('text-left');
-  td_product.textContent = "Connecting to device...";
-
+async function OnConnectDevice(device) {
+  console.log('connect', device);
   try {
-    await device.connect();
-  } catch (error) {
-    td_product.textContent = `Failed to connect to device: ${error.message}`;
-    is_connected =  false;
+    await device.open();
+  } catch (err) {
+      console.error(err);
+  }
+  try {
+      await device.reset();
+  } catch (err) {
+      console.error(err);
   }
 
-  // Check if the device is connected
-  if (!is_connected) return;
-
+  try {
+      await device.selectConfiguration(1);
+  } catch (err) {
+      console.error(err);
+  }
+  try {
+      await device.claimInterface(0);
+  } catch (err) {
+      console.error(err);
+  }
   // Get the product name
-  let product = await device.getVariable("product");
-  
+  const product = await fastbootGetvar(device, "product");
+  let slot = await fastbootGetvar(device, "current-slot");
+  if (slot === "") {
+    slot = undefined;
+  }
+  let unlocked = await fastbootGetvar(device, "unlocked");
+  if (unlocked === "yes") {
+    unlocked = true;
+  } else if (unlocked === undefined || unlocked === "") {
+    unlocked = true;
+  } else {
+    unlocked = false;
+  }
+
   let result;
 
   for (let index = 0; index < deviceinfo.length; index++) {
@@ -125,16 +273,11 @@ async function ConnectDevice() {
   startButton.textContent = 'Start flashing';
   // add classes to tailwindcss and move to right
   startButton.classList.add('bg-[#fd961a]', 'hover:bg-[#a06713]', 'text-white', 'font-semibold', 'py-2', 'px-4', 'rounded', 'transition','ml-auto');
-  startButton.addEventListener('click', StartFlashing);
+  startButton.addEventListener('click', StartFlashing(device));
 
   td_start.classList.add('flex', 'items-center', 'justify-center');
   td_start.appendChild(startButton);
   
-}
-async function StartFlashing() {
-  console.log("Start flashing");
-  td_product.textContent = "Starting flashing";
-  await RunScript(deviceinfo[0]['script']);
 }
 
 document.addEventListener("DOMContentLoaded", async function() {
@@ -159,8 +302,27 @@ document.addEventListener("DOMContentLoaded", async function() {
 
   // Add event listener to connect button
   const requestDeviceButton = document.getElementById('request-device');
-  requestDeviceButton.addEventListener('click', ConnectDevice);
+  requestDeviceButton.addEventListener('click', async function (event) {
+    event.preventDefault();
+    let device;
+    try {
+      
+      td_product.classList.add('text-left');
+      td_product.textContent = "Connecting to device...";
+      device = await navigator.usb.requestDevice({
+        filters: [{
+            classCode: 0xFF, subclassCode: 0x42, protocolCode: 0x03,
+        },],
+      });
+    } catch (err) {
+      // No device selected
+      console.error(err);
+    }
+    if (device !== undefined) {
+      OnConnectDevice(device);
+    }
 
+  });
   const suppTable = document.getElementById('supporteddevices');
   for (let i = 0; i < deviceinfo.length; i++) {
     const di = deviceinfo[i];
