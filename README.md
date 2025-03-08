@@ -20,7 +20,7 @@ To set up the development environment, follow these steps:
     ``` .sh
     npm install
     ```
-3. Ensure install the [fastboot nix-package](https://github.com/JordyPirata/fastboot.js/tree/FIX-MAX-DOWNLOAD-SIZE)
+3. Ensure install the [fastboot nix-package](https://github.com/JordyPirata/fastboot.js)
 
     **Note:** Please check the link above for more details.
 4. Run dev scripts
