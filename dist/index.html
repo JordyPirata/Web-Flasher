@@ -14,8 +14,11 @@
             <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="Nix-Bitcoin logo" class="h-10 mr-2">
             <span class="text-lg font-semibold">Nix-Bitcoin</span>
         </a>
-        <a href="https://github.com/JordyPirata/Web-Flasher" class="text-xl font-semibold">Web Flasher</a>
-        
+        <div class="flex items-center space-x-4">
+            <a href="https://github.com/JordyPirata/Web-Flasher" class="text-xl font-semibold">Web Flasher</a>
+            <a href="https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/boot.img.xz" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-4 rounded transition">Download (Boot)</a>
+            <a href="https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-4 rounded transition">Download (System)</a>
+        </div>
     </header>
     <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
 
@@ -29,14 +32,48 @@
                 </p>
             </div>
         </div>
-
-        <p id="paragraph"class="mb-6 text-lg text-gray-400">Use WebUSB to flash a Nix-Bitcoin image to your device.</p>
+        <!-- Added Instructions -->
+        <div id="instructions"class="mb-6 text-lg text-gray-400">
+            <h3 class="text-xl mb-2 text-gray-300">How to Use the Web Flasher</h3>
+            <ol class="list-decimal list-inside space-y-2">
+                <li>Download the both image's file using the "Download (Boot)" and "Download (System)" links above.</li>
+                <li>Decompress the downloaded image file using a tool like 7-Zip.</li>
+                <li>Put your device in fastboot mode (refer to your device’s documentation if needed).</li>
+                <li>Click the "Continue" button below to start the flashing process.</li>
+                <li>Follow any on-screen prompts to complete the flashing process.</li>
+            </ol>
+            <form class="continue" id="continue-button">
+                <button type="submit" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">
+                    Continue
+                </button>
+            </form>
+        </div>
         
         <div id="ConnectedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full">
             <h2 class="text-2xl mb-4 text-gray-300">Connected Devices</h2>
             <p class="mb-4 text-gray-400">Put your device in fastboot mode and use "Give access" to allow flashing.</p>
             <button id="request-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition">Give Access</button>
+            
+            <div class="container mx-auto p-6">
+                <form class="flash-form max-w-md space-y-4 bg-[#202020] p-6 rounded-lg shadow-lg">
+                    <div>
+                        <label for="flash-file" class="block text-sm font-medium text-gray-300 mb-1">
+                            Flash image:
+                        </label>
+                        <input 
+                            type="file" 
+                            name="flash-file" 
+                            class="flash-file w-full border border-gray-600 rounded-md p-2 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-[#fd961a] file:text-white hover:file:bg-[#a06713] text-gray-300"
+                        />
+                    </div>
+                </form>
+            </div>
+            <p class="mb-4 text-gray-400">After flashing the both images, click on "Reboot" to reboot your device.</p>
             <table id="devices" class="w-full border-collapse mt-4"></table>
+            <button id="reboot-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">Reboot</button>
+            <div class="container mx-auto p-6">
+                <p class="mb-4 text-gray-400">Wait until read DONE (Right click and inspect for more information).</p>
+            </div>
         </div>
         
         <div id="SupportedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full mt-6">
@@ -55,6 +92,5 @@
     </footer>
     <script src="vendor/xzwasm.min.js"></script>
     <script src="main.js"></script>
-    <script src="sparse.js"></script>
 </body>
 </html>
