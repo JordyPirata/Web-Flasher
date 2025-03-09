@@ -91,7 +91,8 @@ async function RunScript(script) {
             for (; ;) {
               const { done, value } = await streamReader.read();
               if (done) break;
-              received += value.byteLength;/*
+              received += value.byteLength;
+              /*
               progressBar.value = received;
               if (progressBar.value === progressBar.max) {
                 progressBar.style.color = '#f00';

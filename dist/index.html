@@ -9,7 +9,7 @@
 
 </head>
 <body class="bg-[#111] text-gray-200 min-h-screen flex flex-col">
-    <header class="bg-[#1d1d1d] p-6 flex justify-between items-center shadow-md">
+    <header class="bg-[#1d1d1d] p-6 flex justify-between items-center shadow-md fixed top-0 left-0 w-full z-10">
         <a href="https://btcgdl.com/" class="flex items-center">
             <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.svg?v=040" alt="Nix-Bitcoin logo" class="h-10 mr-2">
             <span class="text-lg font-semibold">Nix-Bitcoin</span>
@@ -36,11 +36,11 @@
         <div id="instructions"class="mb-6 text-lg text-gray-400">
             <h3 class="text-xl mb-2 text-gray-300">How to Use the Web Flasher</h3>
             <ol class="list-decimal list-inside space-y-2">
-                <li>Download the both image's file using the "Download (Boot)" and "Download (System)" links above.</li>
-                <li>Decompress the downloaded image file using a tool like 7-Zip.</li>
-                <li>Put your device in fastboot mode (refer to your device’s documentation if needed).</li>
-                <li>Click the "Continue" button below to start the flashing process.</li>
-                <li>Follow any on-screen prompts to complete the flashing process.</li>
+                <li>Download both the boot image and system image files using the "Download (Boot)" and "Download (System)" links above.</li>
+                <li>Decompress both downloaded image files using a tool like <a href="https://www.7-zip.org/" class="text-orange-400 underline hover:text-orange-300 transition">7-Zip</a>, a free file archiver that can handle various compression formats.</li>
+                <li>Put your device in fastboot mode. This typically involves turning off your device and holding a combination of buttons, such as the Volume Down and Power buttons simultaneously. Refer to your device’s documentation if you’re unsure.</li>
+                <li>In the flashing tool interface, click the "Continue" button to start the flashing process.</li>
+                <li>Follow any on-screen prompts to complete the flashing process. Ensure your device is properly connected to your computer and its battery is sufficiently charged to avoid interruptions.</li>
             </ol>
             <form class="continue" id="continue-button">
                 <button type="submit" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">
@@ -70,10 +70,8 @@
             </div>
             <p class="mb-4 text-gray-400">After flashing the both images, click on "Reboot" to reboot your device.</p>
             <table id="devices" class="w-full border-collapse mt-4"></table>
+            <p class="container mx-auto p-6 mb-4 text-gray-400">Wait until read DONE (Right click and inspect for more information).</p>
             <button id="reboot-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">Reboot</button>
-            <div class="container mx-auto p-6">
-                <p class="mb-4 text-gray-400">Wait until read DONE (Right click and inspect for more information).</p>
-            </div>
         </div>
         
         <div id="SupportedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full mt-6">
