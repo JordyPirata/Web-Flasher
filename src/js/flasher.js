@@ -202,13 +202,13 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Get DOM elements with clear, consistent variable names
   const connectedDiv = document.getElementById('ConnectedDev');
   const supportedDiv = document.getElementById('SupportedDev');
-  const paragraph = document.getElementById('paragraph');
+  //const paragraph = document.getElementById('paragraph');
   const notSupportedDiv = document.getElementById('notsupported');
   const instructions = document.getElementById('instructions');
 
   // Check WebUSB support and manage element visibility
   if (navigator.usb === undefined) { 
-    paragraph.style.display = 'none';         // Hide paragraph
+    // paragraph.style.display = 'none';         // Hide paragraph
     supportedDiv.style.display = 'none';      // Hide supported devices
     connectedDiv.style.display = 'none';      // Hide connected devices
     instructions.style.display = 'none';      // Hide instructions
