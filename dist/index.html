@@ -1,3 +1,5 @@
+<!--This Flasher is maded by Jordy Pirata, you can find the original code in https://github.com/JordyPirata/Web-Flasher-->
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -20,7 +22,39 @@
             <a href="https://elasticbeanstalk-us-west-2-190312923858.s3.us-west-2.amazonaws.com/system.img.xz" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-4 rounded transition">Download (System)</a>
         </div>
     </header>
-    <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
+    <main class="flex-grow flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto pt-30">
+        <!-- Separated Warning Section -->
+        <section id="warning" class="w-full bg-yellow-100 border-l-4 border-yellow-500 p-6 rounded-lg shadow-md mb-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0">
+                    <!-- Warning Icon -->
+                    <svg class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-yellow-800">Caution: Flashing Risks</h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p>Flashing firmware can brick your device or cause data loss if not done correctly. </p>
+                        <p>This program requires at least 2GB of available RAM, and the unzipped files weigh around 12GB. Ensure:</p>
+                        <ul class="list-disc list-inside mt-1">
+                            <li>Files are correct and uncorrupted. Verify using the checksums below.</li>
+                            <li>Your device is in fastboot mode.</li>
+                            <li>Battery is at least 50% charged.</li>
+                        </ul>
+                        <p class="mt-2 font-semibold">SHA256 Checksums:</p>
+                        <ul class="list-disc list-inside mt-1">
+                            <li><code>system.img.xz</code>: 8350c98dd94cc8fbb3e4cef76066fc8849eee97a81e74f8b6f37f4b47d5181cb</li>
+                            <li><code>boot.img.xz</code>: b3d3d6038a536fd13ff9ba07c0259a9d6d85297a11f24ab31c2366abad0cb2a6</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4">
+                        <button id="warning-button" class="text-sm text-yellow-800 hover:text-yellow-900 font-medium underline">Dismiss</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <div id="notsupported" class="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-red-900 to-gray-900 text-white p-8 rounded-2xl">
             <div class="bg-[#1d1d1d] p-10 rounded-2xl shadow-xl max-w-3xl text-center">
@@ -37,10 +71,10 @@
             <h3 class="text-xl mb-2 text-gray-300">How to Use the Web Flasher</h3>
             <ol class="list-decimal list-inside space-y-2">
                 <li>Download both the boot image and system image files using the "Download (Boot)" and "Download (System)" links above.</li>
-                <li>Decompress both downloaded image files using a tool like <a href="https://www.7-zip.org/" class="text-orange-400 underline hover:text-orange-300 transition">7-Zip</a>, a free file archiver that can handle various compression formats.</li>
-                <li>Put your device in fastboot mode. This typically involves turning off your device and holding a combination of buttons, such as the Volume Down and Power buttons simultaneously. Refer to your device’s documentation if you’re unsure.</li>
-                <li>In the flashing tool interface, click the "Continue" button to start the flashing process.</li>
+                <li>Decompress both downloaded image files using a tool like <a href="https://www.7-zip.org/" class="text-orange-400 underline hover:text-orange-300 transition">7-Zip</a> or <a href="https://www.rarlab.com/" class="text-orange-400 underline hover:text-orange-300 transition">WinRAR</a>, a free file archiver that can handle various compression formats.</li>
                 <li>Follow any on-screen prompts to complete the flashing process. Ensure your device is properly connected to your computer and its battery is sufficiently charged to avoid interruptions.</li>
+                <li>In the flashing tool interface, click the "Continue" button to start the flashing process.</li>
+                <li>If all of this stuff fails, you can try to flash <a href="https://gist.github.com/chrisguida/54d890f2929f973f45a4e5c3e4f4ddeb" class="text-orange-400 underline hover:text-orange-300 transition">manually</a>.</li>
             </ol>
             <form class="continue" id="continue-button">
                 <button type="submit" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">
@@ -50,10 +84,12 @@
         </div>
         
         <div id="ConnectedDev" class="bg-[#1d1d1d] p-6 rounded-lg shadow-lg w-full">
-            <h2 class="text-2xl mb-4 text-gray-300">Connected Devices</h2>
-            <p class="mb-4 text-gray-400">Put your device in fastboot mode and use "Give access" to allow flashing.</p>
-            <button id="request-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition">Give Access</button>
             
+            <h2 class="text-2xl mb-4 text-gray-300">Connecting the Device</h2>
+            <p class="mb-4 text-gray-400">Current Windows 10 and Windows 11 include a generic driver usable for fastboot and no longer require installing a driver for installation. It isn’t enough for legacy 4th generation Pixels due to the driver not handling fastbootd, so you still need the driver for those. Outdated Windows versions will also need the driver for non-obsolete devices. You can obtain the driver from Windows Update, which will detect it as an optional update when the device is booted into the bootloader interface and connected to the computer. Open Windows Update, run a check for updates, then open the "View optional updates" interface. Install the driver for the Android bootloader interface as an optional update, which will show up as "LeMobile Android Device" due to USB ID overlap. Alternatively, obtain the <a href="https://developer.android.com/studio/run/win-usb" class="text-[#fd961a] hover:underline">latest driver for Pixels</a> from Google and <a href="https://developer.android.com/studio/run/oem-usb#InstallingDriver" class="text-[#fd961a] hover:underline">manually install it with the Windows Device Manager</a>.</p>
+            
+            <button id="request-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition">Give Access</button>
+            <p class="p-6 mb-4 text-gray-400">You need to flash first the boot image and then the system image.</p>
             <div class="container mx-auto p-6">
                 <form class="flash-form max-w-md space-y-4 bg-[#202020] p-6 rounded-lg shadow-lg">
                     <div>
@@ -68,7 +104,7 @@
                     </div>
                 </form>
             </div>
-            <p class="mb-4 text-gray-400">After flashing the both images, click on "Reboot" to reboot your device.</p>
+            <p class="p-6 mb-4 text-gray-400">After flashing the both images, click on "Reboot" to reboot your device.</p>
             <table id="devices" class="w-full border-collapse mt-4"></table>
             <p class="container mx-auto p-6 mb-4 text-gray-400">Wait until read DONE (Right click and inspect for more information).</p>
             <button id="reboot-device" class="bg-[#fd961a] hover:bg-[#a06713] text-white font-semibold py-2 px-6 rounded transition mt-4">Reboot</button>

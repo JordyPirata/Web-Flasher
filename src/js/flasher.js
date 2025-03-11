@@ -202,13 +202,13 @@ document.addEventListener("DOMContentLoaded", async function() {
   // Get DOM elements with clear, consistent variable names
   const connectedDiv = document.getElementById('ConnectedDev');
   const supportedDiv = document.getElementById('SupportedDev');
-  //const paragraph = document.getElementById('paragraph');
+  const warningDiv = document.getElementById('warning');
   const notSupportedDiv = document.getElementById('notsupported');
   const instructions = document.getElementById('instructions');
 
   // Check WebUSB support and manage element visibility
   if (navigator.usb === undefined) { 
-    // paragraph.style.display = 'none';         // Hide paragraph
+    warningDiv.style.display = 'none';         // Hide warning
     supportedDiv.style.display = 'none';      // Hide supported devices
     connectedDiv.style.display = 'none';      // Hide connected devices
     instructions.style.display = 'none';      // Hide instructions
@@ -217,20 +217,21 @@ document.addEventListener("DOMContentLoaded", async function() {
     notSupportedDiv.style.display = 'none';   // Hide "not supported" message
     connectedDiv.style.display = 'none';      // Initially hide connected devices
   }
-
+  // Add event listener to the warning button
+  const warningButton = document.getElementById('warning-button');
+  warningButton.addEventListener('click', function (event) {
+    event.preventDefault();
+    warningDiv.style.display = 'none';   // Hide warning on click
+    supportedDiv.style.display = 'block';   // Show supported devices on click
+  });
   // Add event listener to the continue button
   const continueButton = document.getElementById('continue-button');
-
-  if (continueButton) {
-    continueButton.addEventListener('click', function (event) {
-      event.preventDefault();
-      connectedDiv.style.display = 'block';   // Show connected devices on click
-      instructions.style.display = 'none';   // Show instructions on click
-    });
-  } else {
-    console.error('Continue button not found in the HTML');
-  }
-
+  continueButton.addEventListener('click', function (event) {
+    event.preventDefault();
+    connectedDiv.style.display = 'block';   // Show connected devices on click
+    instructions.style.display = 'none';   // Show instructions on click
+  });
+  
   // Add event listener to connect button
   const requestDeviceButton = document.getElementById('request-device');
   requestDeviceButton.addEventListener('click', async function (event) {

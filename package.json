@@ -12,7 +12,7 @@
     "dev": "npm-run-all --parallel dev:*",
     "css": "npx @tailwindcss/cli -i ./dist/input.css -o ./dist/styles.css",
     "js": "webpack --config webpack.config.js",
-    "serve": "npx live-server --wait=1000 --port=8000 --host=0.0.0.0"
+    "serve": "npx live-server dist --wait=1000 --port=8000"
   },
   "repository": {
     "type": "git",
