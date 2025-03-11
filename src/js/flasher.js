@@ -178,14 +178,19 @@ async function flashFromFile(event) {
 
   let fileField = document.querySelector(".flash-file");
   let file = fileField.files[0];
+  let size = file.size;
 
   const filename = file.name;
   console.log(filename);
 
   const fileType = getFileType(filename);
-  console.log(fileType); 
-  td_product.textContent = `Flashing...  ${fileType}`;
-  await device.flashBlob(fileType, file);
+
+  td_product.textContent = `Flashing...  ${fileType} 0%`;
+  await device.flashBlob(fileType, file, (progress) => {
+    var percentage = Math.round(progress * 100);
+    td_product.textContent = `Flashing...  ${fileType} ${percentage}%`;
+  });
+
   td_product.textContent = `Flashing...  ${fileType} done`;
   
   fileField.value = "";
